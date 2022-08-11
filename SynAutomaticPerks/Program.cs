@@ -40,9 +40,11 @@ namespace SynAutomaticPerks
 
         private static void AddPerksToNpc(IPatcherState<ISkyrimMod, ISkyrimModGetter> state, Dictionary<IPerkGetter, PerkInfo> perkInfoList)
         {
+            int limit = 0; // for tests
             foreach (var npcGetterContext in state.LoadOrder.PriorityOrder.Npc().WinningContextOverrides())
             {
                 if (npcGetterContext == null) continue;
+                if (limit >= 100) continue;
 
                 var npcGetter = npcGetterContext.Record;
                 if (npcGetter == null) continue;
@@ -72,6 +74,7 @@ namespace SynAutomaticPerks
 
                 if (perksToAdd.Count == 0) continue;
 
+                limit++;
                 var npc = state.PatchMod.Npcs.GetOrAddAsOverride(npcGetter);
                 if (npc.Perks == null) npc.Perks = new Noggog.ExtendedList<PerkPlacement>();
                 foreach(var perkToAdd in perksToAdd)
@@ -119,7 +122,7 @@ namespace SynAutomaticPerks
                 var perkGetter = perkGetterContext.Record;
 
                 if (perkGetter == null) continue;
-                if (perkGetter.EditorID != "ORD_Alt20_AlterationDualCasting_Perk_20_WasAlterationDualCasting") continue;
+                //if (perkGetter.EditorID != "ORD_Alt20_AlterationDualCasting_Perk_20_WasAlterationDualCasting") continue;
 
                 bool failed = false;
                 bool passed = false;
