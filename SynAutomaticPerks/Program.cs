@@ -3,8 +3,11 @@ using Mutagen.Bethesda.Plugins;
 using Mutagen.Bethesda.Skyrim;
 using Mutagen.Bethesda.Synthesis;
 using SkyrimNPCHelpers;
+using StringCompareSettings;
+using IniReader;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -34,8 +37,201 @@ namespace SynAutomaticPerks
 
         public static void RunPatch(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
+            SearchAndTryReadASISIni(state);
+
+            SetAsisAutoSpellsIniValuesToSettings();
+
             Dictionary<IPerkGetter, PerkInfo> PerkInfoList = GetPerkInfo(state);
             AddPerksToNpc(state, PerkInfoList);
+        }
+
+        private static void SetAsisAutoSpellsIniValuesToSettings()
+        {
+            Console.WriteLine("Set Asis autospells ini values into settings..");
+
+            foreach (var v in AutomaticSpellsIniParams!["NPCInclusions"])
+            {
+                var stringInfo = new StringCompareSetting
+                {
+                    Name = v,
+                    IgnoreCase = true,
+                    Compare = CompareType.StartsWith
+                };
+
+                var list = Settings.Value.ASIS.NPCInclusions;
+                if (list.Contains(stringInfo)) continue;
+
+                list.Add(stringInfo);
+            }
+            foreach (var v in AutomaticSpellsIniParams["NPCExclusions"])
+            {
+                var stringInfo = new StringCompareSetting
+                {
+                    Name = v,
+                    IgnoreCase = true,
+                    Compare = CompareType.Contains
+                };
+
+                var list = Settings.Value.ASIS.NPCExclusions;
+                if (list.Contains(stringInfo)) continue;
+
+                list.Add(stringInfo);
+            }
+            foreach (var v in AutomaticSpellsIniParams["PERKEXCLUSIONSCONTAINS"])
+            {
+                var stringInfo = new StringCompareSetting
+                {
+                    Name = v,
+                    IgnoreCase = true,
+                    Compare = CompareType.Contains
+                };
+
+                var list = Settings.Value.ASIS.PerkExclusons;
+                if (list.Contains(stringInfo)) continue;
+
+                list.Add(stringInfo);
+            }
+            foreach (var v in AutomaticSpellsIniParams["PERKEXCLUSIONSSTARTSWITH"])
+            {
+                var stringInfo = new StringCompareSetting
+                {
+                    Name = v,
+                    IgnoreCase = true,
+                    Compare = CompareType.StartsWith
+                };
+
+                var list = Settings.Value.ASIS.PerkExclusons;
+                if (list.Contains(stringInfo)) continue;
+
+                list.Add(stringInfo);
+            }
+            foreach (var v in AutomaticSpellsIniParams["NPCKeywordExclusions"])
+            {
+                var stringInfo = new StringCompareSetting
+                {
+                    Name = v,
+                    IgnoreCase = true,
+                    Compare = CompareType.StartsWith
+                };
+
+                var list = Settings.Value.ASIS.NPCKeywordExclusions;
+                if (list.Contains(stringInfo)) continue;
+
+                list.Add(stringInfo);
+            }
+            foreach (var v in AutomaticSpellsIniParams["NPCModExclusions"])
+            {
+                var stringInfo = new StringCompareSetting
+                {
+                    Name = v,
+                    IgnoreCase = true,
+                    Compare = CompareType.Equals
+                };
+
+                var list = Settings.Value.ASIS.NPCModExclusions;
+                if (list.Contains(stringInfo)) continue;
+
+                list.Add(stringInfo);
+            }
+            foreach (var v in AutomaticSpellsIniParams["PerkModInclusions"])
+            {
+                var stringInfo = new StringCompareSetting
+                {
+                    Name = v,
+                    IgnoreCase = true,
+                    Compare = CompareType.Equals
+                };
+
+                var list = Settings.Value.ASIS.PerkModInclusions;
+                if (list.Contains(stringInfo)) continue;
+
+                list.Add(stringInfo);
+            }
+            foreach (var v in AutomaticSpellsIniParams["PerkInclusions"])
+            {
+                var stringInfo = new StringCompareSetting
+                {
+                    Name = v,
+                    IgnoreCase = true,
+                    Compare = CompareType.Equals
+                };
+
+                var list = Settings.Value.ASIS.PerkModInclusions;
+                if (list.Contains(stringInfo)) continue;
+
+                list.Add(stringInfo);
+            }
+            foreach (var v in AutomaticSpellsIniParams["ForcedFollowers"])
+            {
+                var stringInfo = new StringCompareSetting
+                {
+                    Name = v,
+                    IgnoreCase = true,
+                    Compare = CompareType.Equals
+                };
+
+                var list = Settings.Value.ASIS.PerkModInclusions;
+                if (list.Contains(stringInfo)) continue;
+
+                list.Add(stringInfo);
+            }
+            foreach (var v in AutomaticSpellsIniParams["FollowersFactions"])
+            {
+                var stringInfo = new StringCompareSetting
+                {
+                    Name = v,
+                    IgnoreCase = true,
+                    Compare = CompareType.Equals
+                };
+
+                var list = Settings.Value.ASIS.PerkModInclusions;
+                if (list.Contains(stringInfo)) continue;
+
+                list.Add(stringInfo);
+            }
+
+            AutomaticSpellsIniParams = null;
+        }
+
+        public static Dictionary<string, HashSet<string>>? AutomaticSpellsIniParams = new()
+        {
+            { "NPCInclusions", new HashSet<string>() },
+            { "NPCExclusions", new HashSet<string>() },
+            { "NPCKeywordExclusions", new HashSet<string>() },
+            { "NPCModExclusions", new HashSet<string>() },
+            { "PerkModInclusions", new HashSet<string>() },
+            { "PerkInclusions", new HashSet<string>() },
+            { "PERKEXCLUSIONSCONTAINS", new HashSet<string>() },
+            { "PERKEXCLUSIONSSTARTSWITH", new HashSet<string>() },
+            { "ForcedFollowers", new HashSet<string>() },
+            { "FollowersFactions", new HashSet<string>() },
+        };
+
+        private static void SearchAndTryReadASISIni(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
+        {
+            var iniPath = Path.Combine(state!.DataFolderPath, "SkyProc Patchers", "ASIS", "AutomaticPerks.ini");
+            if (!File.Exists(iniPath)) return;
+
+            // read AutomaticSpells ini parameters into settings
+            Console.WriteLine("Found ASIS 'AutomaticPerks.ini'. Trying to read..");
+
+            Dictionary<string, HashSet<string>> iniSections = new();
+            iniSections.ReadIniSectionValuesFrom(iniPath);
+
+            var keys = new HashSet<string>(AutomaticSpellsIniParams!.Keys);
+            int iniValuesCount = 0;
+            int iniSectionsCount = 0;
+            foreach (var key in keys)
+            {
+                if (!iniSections.ContainsKey(key)) continue;
+
+                var v = iniSections[key];
+                AutomaticSpellsIniParams[key] = v;
+                iniValuesCount += v.Count;
+                iniSectionsCount++;
+            }
+
+            Console.WriteLine($"Added {iniSectionsCount} sections and {iniValuesCount} values from 'AutomaticPerks.ini'");
         }
 
         private static void AddPerksToNpc(IPatcherState<ISkyrimMod, ISkyrimModGetter> state, Dictionary<IPerkGetter, PerkInfo> perkInfoList)
