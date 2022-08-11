@@ -84,6 +84,8 @@ namespace SynAutomaticPerks
                     };
                     npc.Perks.Add(perkItem);
                 }
+
+                Console.WriteLine($"Added {perksToAdd.Count} perks to {npc.EditorID}");
             }
         }
 
