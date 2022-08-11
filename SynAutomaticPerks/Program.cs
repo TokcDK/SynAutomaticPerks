@@ -236,14 +236,56 @@ namespace SynAutomaticPerks
 
         private static void AddPerksToNpc(IPatcherState<ISkyrimMod, ISkyrimModGetter> state, Dictionary<IPerkGetter, PerkInfo> perkInfoList)
         {
+            bool useNpcModExclude = Settings.Value.NpcModExclude.Count > 0;
+            bool useNpcModExcludeByName = Settings.Value.NpcModExclude.Count > 0;
+            bool useNpcExclude = Settings.Value.ASIS.NPCExclusions.Count > 0;
+            bool useNpcInclude = Settings.Value.ASIS.NPCInclusions.Count > 0;
+            bool useNpcKeywordExclude = Settings.Value.ASIS.NPCKeywordExclusions.Count > 0;
+
             int limit = 0; // for tests
             foreach (var npcGetterContext in state.LoadOrder.PriorityOrder.Npc().WinningContextOverrides())
             {
                 if (npcGetterContext == null) continue;
                 if (limit >= 100) continue;
 
+                if (npcGetterContext == null) continue;
+
+                // skip invalid
+                //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check npc getter");
                 var npcGetter = npcGetterContext.Record;
                 if (npcGetter == null) continue;
+                var sourceModKey = state.LinkCache.ResolveAllContexts<INpc, INpcGetter>(npcGetter.FormKey).Last().ModKey;
+                //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check if npc source mod is in excluded list");
+                if (useNpcModExclude && Settings.Value.NpcModExclude.Contains(sourceModKey)) continue;
+                //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check if npc source mod is in included list");
+                //if (useNpcModExcludeByName && sourceModKey.FileName.String.HasAnyFromList(Settings.Value.ASIS.NPCModExclusions)) continue;
+
+                //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check if npc has spells");
+                if (npcGetter.ActorEffect == null) continue;
+                //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check if npc edid is not empty");
+                if (string.IsNullOrWhiteSpace(npcGetter.EditorID)) continue;
+                //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check if npc in ignore list");
+                if (useNpcExclude && npcGetter.EditorID.HasAnyFromList(Settings.Value.ASIS.NPCExclusions)) continue;
+                //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check if npc in included list");
+                if (useNpcInclude && !npcGetter.EditorID.HasAnyFromList(Settings.Value.ASIS.NPCInclusions)) continue;
+                //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check if npc has keywords from ignore list");
+                if (useNpcKeywordExclude && npcGetter.Keywords != null)
+                {
+                    bool skip = false;
+                    foreach (var keywordGetterFormLink in npcGetter.Keywords)
+                    {
+                        if (!keywordGetterFormLink.TryResolve(state.LinkCache, out var keywordGeter)) continue;
+                        if (string.IsNullOrWhiteSpace(keywordGeter.EditorID)) continue;
+
+                        if (!keywordGeter.EditorID.HasAnyFromList(Settings.Value.ASIS.NPCKeywordExclusions)) continue;
+
+                        skip = true;
+                        break;
+                    }
+
+                    //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} skip npc if has excluded keyword:{skip}");
+                    if (skip) continue;
+                }
                 
                 if (!npcGetter.TryUnTemplate(state.LinkCache, NpcConfiguration.TemplateFlag.Stats, out var untemplatedNpc)) continue;
 
@@ -311,6 +353,10 @@ namespace SynAutomaticPerks
                     ActorValue.Restoration,
                     ActorValue.Enchanting,
                 };
+            bool useModInclude = Settings.Value.PerkModInclude.Count > 0 || Settings.Value.ASIS.PerkModInclusions.Count > 0;
+            bool usePerkInclude = Settings.Value.ASIS.PerkInclusions.Count > 0;
+            bool useSpellExclude = Settings.Value.ASIS.PerkExclusons.Count > 0;
+
             Console.WriteLine($"Get perks");
             foreach (var perkGetterContext in state.LoadOrder.PriorityOrder.Perk().WinningContextOverrides())
             {
@@ -319,6 +365,22 @@ namespace SynAutomaticPerks
 
                 if (perkGetter == null) continue;
                 //if (perkGetter.EditorID != "ORD_Alt20_AlterationDualCasting_Perk_20_WasAlterationDualCasting") continue;
+
+                //if (IsDebugSpell) Console.WriteLine($"{spellDebugID} check if spel is from included mods");
+                var sourceModKey = state.LinkCache.ResolveAllContexts<IPerk, IPerkGetter>(perkGetter.FormKey).Last().ModKey;
+                if (useModInclude && !Settings.Value.PerkModInclude.Contains(sourceModKey)
+                    && !sourceModKey.FileName.String.HasAnyFromList(Settings.Value.ASIS.PerkModInclusions)) continue;
+
+                //if (IsDebugSpell) Console.WriteLine($"{spellDebugID} check if spell cast type is valid");
+                //if (!IsValidSpellType(spellGetter)) continue;
+                //if (IsDebugSpell) Console.WriteLine($"{spellDebugID} check if already added");
+                //if (spellInfoList.ContainsKey(spellGetter)) continue;
+                //if (IsDebugSpell) Console.WriteLine($"{spellDebugID} check if has empty edid");
+                if (string.IsNullOrWhiteSpace(perkGetter.EditorID)) continue;
+                if (usePerkInclude && !perkGetter.EditorID.HasAnyFromList(Settings.Value.ASIS.PerkInclusions)) continue;
+                //if (IsDebugSpell) Console.WriteLine($"{spellDebugID} check if the spell is in excluded list");
+                if (useSpellExclude && perkGetter.EditorID.HasAnyFromList(Settings.Value.ASIS.PerkExclusons)) continue;
+
 
                 bool failed = false;
                 bool passed = false;

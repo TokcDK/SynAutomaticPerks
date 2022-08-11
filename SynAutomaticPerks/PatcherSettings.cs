@@ -8,6 +8,17 @@ namespace SynAutomaticPerks
     public class PatcherSettings
     {
         [SynthesisOrder]
+        [SynthesisDiskName("NpcModExclude")]
+        //[SynthesisSettingName("Npc Keyword Exclude")]
+        [SynthesisTooltip("Determine excluded mods for npcs")]
+        public HashSet<ModKey> NpcModExclude = new();
+        [SynthesisOrder]
+        [SynthesisDiskName("PerkModInclude")]
+        //[SynthesisSettingName("SpellModExclude")]
+        [SynthesisTooltip("Determine included mods for perks")]
+        public HashSet<ModKey> PerkModInclude = new();
+
+        [SynthesisOrder]
         [SynthesisTooltip("ASIS like options, can be read from ASIS AutomaticSpell.ini if exist or entered manually here")]
         public ASISOptions ASIS = new();
     }
