@@ -1,8 +1,10 @@
 using Mutagen.Bethesda;
+using Mutagen.Bethesda.Plugins;
 using Mutagen.Bethesda.Skyrim;
 using Mutagen.Bethesda.Synthesis;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SynAutomaticPerks
@@ -30,8 +32,31 @@ namespace SynAutomaticPerks
         public static void RunPatch(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
             Dictionary<IPerkGetter, PerkInfo> PerkInfoList = GetPerkInfo(state);
+            AddPerks(state, PerkInfoList);
+
+        }
+
+        private static void AddPerks(IPatcherState<ISkyrimMod, ISkyrimModGetter> state, Dictionary<IPerkGetter, PerkInfo> perkInfoList)
+        {
+            foreach (var npcGetterContext in state.LoadOrder.PriorityOrder.Npc().WinningContextOverrides())
+            {
+                if (npcGetterContext == null) continue;
+
+                var npcGetter = npcGetterContext.Record;
+                if (npcGetter == null) continue;
+
+                bool isNullPerks = npcGetter.Perks == null;
+                bool isHavePerks = !isNullPerks && npcGetter.Perks!.Count>0;
+
+                HashSet<FormKey> npcPerks = new(npcGetter.Perks!.Select(p=>p.Perk.FormKey));
+
+                foreach (var perkGetter in perkInfoList)
+                {
+                    if (!isNullPerks && isHavePerks && npcPerks.Contains(perkGetter.Key.FormKey)) continue;
 
 
+                }
+            }
         }
 
         private static Dictionary<IPerkGetter, PerkInfo> GetPerkInfo(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
