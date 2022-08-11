@@ -35,11 +35,10 @@ namespace SynAutomaticPerks
         public static void RunPatch(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
             Dictionary<IPerkGetter, PerkInfo> PerkInfoList = GetPerkInfo(state);
-            AddPerks(state, PerkInfoList);
-
+            AddPerksToNpc(state, PerkInfoList);
         }
 
-        private static void AddPerks(IPatcherState<ISkyrimMod, ISkyrimModGetter> state, Dictionary<IPerkGetter, PerkInfo> perkInfoList)
+        private static void AddPerksToNpc(IPatcherState<ISkyrimMod, ISkyrimModGetter> state, Dictionary<IPerkGetter, PerkInfo> perkInfoList)
         {
             foreach (var npcGetterContext in state.LoadOrder.PriorityOrder.Npc().WinningContextOverrides())
             {
@@ -92,74 +91,81 @@ namespace SynAutomaticPerks
         private static Dictionary<IPerkGetter, PerkInfo> GetPerkInfo(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
             Dictionary<IPerkGetter, PerkInfo> perkInfoList = new();
-            //foreach (var npcGetter in state.LoadOrder.PriorityOrder.Npc().WinningOverrides())
-            {
-                //if (npcGetter == null) continue;
-
-                Console.WriteLine($"Get perks");
-                foreach (var perkGetterContext in state.LoadOrder.PriorityOrder.Perk().WinningContextOverrides())
+            HashSet<ActorValue> validActorValues = new()
                 {
-                    if (perkGetterContext == null) continue;
-                    var perkGetter = perkGetterContext.Record;
+                    ActorValue.OneHanded,
+                    ActorValue.TwoHanded,
+                    ActorValue.Archery,
+                    ActorValue.Block,
+                    ActorValue.Smithing,
+                    ActorValue.HeavyArmor,
+                    ActorValue.LightArmor,
+                    ActorValue.Pickpocket,
+                    ActorValue.Lockpicking,
+                    ActorValue.Sneak,
+                    ActorValue.Alchemy,
+                    ActorValue.Speech,
+                    ActorValue.Alteration,
+                    ActorValue.Conjuration,
+                    ActorValue.Destruction,
+                    ActorValue.Illusion,
+                    ActorValue.Restoration,
+                    ActorValue.Enchanting,
+                };
+            Console.WriteLine($"Get perks");
+            foreach (var perkGetterContext in state.LoadOrder.PriorityOrder.Perk().WinningContextOverrides())
+            {
+                if (perkGetterContext == null) continue;
+                var perkGetter = perkGetterContext.Record;
 
-                    if (perkGetter == null) continue;
-                    if (perkGetter.EditorID != "ORD_Alt20_AlterationDualCasting_Perk_20_WasAlterationDualCasting") continue;
+                if (perkGetter == null) continue;
+                if (perkGetter.EditorID != "ORD_Alt20_AlterationDualCasting_Perk_20_WasAlterationDualCasting") continue;
 
-                    bool failed = false;
-                    bool passed = false;
-                    var perkInfo = new PerkInfo();
-                    foreach (var perkCondition in perkGetter.Conditions)
+                bool failed = false;
+                bool passed = false;
+                var perkInfo = new PerkInfo();
+                foreach (var perkCondition in perkGetter.Conditions)
+                {
+                    if (perkCondition == null) continue;
+                    //Console.WriteLine($"1");
+                    if (perkCondition.Data.RunOnType != Condition.RunOnType.Subject) continue;
+                    //Console.WriteLine($"2");
+                    if (perkCondition.CompareOperator != CompareOperator.GreaterThanOrEqualTo) continue;
+
+                    //Console.WriteLine($"3");
+                    if (perkCondition is not IConditionFloatGetter floatCOnditionGetter) continue;
+                    //Console.WriteLine($"4");
+                    if (floatCOnditionGetter.Data is not IFunctionConditionDataGetter floatCOnditionDataGetter) continue;
+
+                    //Console.WriteLine($"5");
+                    if (floatCOnditionDataGetter.Function != Condition.Function.GetBaseActorValue) continue;
+
+                    //Console.WriteLine($"6");
+
+                    var actorValue = (ActorValue)floatCOnditionDataGetter.ParameterOneNumber;
+                    if (!validActorValues.Contains(actorValue)) continue;
+
+                    Console.WriteLine($"actorValue:{actorValue}");
+                    if (!Enum.TryParse(typeof(Skill), actorValue.ToString(), out var avSkill))
                     {
-                        if (perkCondition == null) continue;
-                        if (perkCondition.Data.RunOnType != Condition.RunOnType.Subject) continue;
-                        if (perkCondition.CompareOperator != CompareOperator.GreaterThanOrEqualTo) continue;
-
-                        //if (!perkCondition.Flags.HasFlag(Condition.Function.GetBaseActorValue)) continue;
-                        //if (!perkCondition.Flags.HasFlag(Condition.ParameterType.ActorValue)) continue;
-                        //if (!perkCondition.Flags.HasFlag(ActorValue.Alteration)) continue;
-                        //if (perkCondition.Flags.HasFlag(Condition.Flag.UseGlobal)) continue;
-                        //if (perkCondition is not IConditionFloat cond) continue;
-                        if (perkCondition is not IConditionFloatGetter floatCOnditionGetter) continue;
-                        //var floatcond = (IConditionFloat)perkCondition;
-                        //if (floatcond == null) continue;
-                        //Console.WriteLine($"11111111111111111");
-                        if (floatCOnditionGetter.Data is not IFunctionConditionDataGetter floatCOnditionDataGetter) continue;
-
-                        if (floatCOnditionDataGetter.Function != Condition.Function.GetBaseActorValue) continue;
-
-                        //Console.WriteLine($"We are here! perk:{perkGetter.Record.EditorID}");
-
-                        try
-                        {
-                            var value = floatCOnditionGetter.ComparisonValue;
-                            var actorValue = (ActorValue)floatCOnditionDataGetter.ParameterOneNumber;
-                            var skill = GetSkillByActorValue(actorValue);
-                            if (skill == null)
-                            {
-                                failed = true;
-                                continue;
-                            }
-
-                            passed = true;
-                            perkInfo.Conditions.Add(new ConditionData() { ActorSkill = (Skill)skill, Value = value });
-                            //Console.WriteLine($"{nameof(floatCOnditionDataGetter.ParameterOneNumber)}:{floatCOnditionDataGetter.ParameterOneNumber}");
-                            //Console.WriteLine($"{(ActorValue)floatCOnditionDataGetter.ParameterOneNumber}");
-                        }
-                        catch
-                        {
-                            failed = true;
-                        }
+                        //Console.WriteLine("failed to get skill");
+                        failed = true;
+                        continue;
                     }
+                    var value = floatCOnditionGetter.ComparisonValue;
+                    Console.WriteLine($"actorValue:{actorValue},skill:{avSkill},value:{value}");
 
-                    if (passed && !failed) perkInfoList.Add(perkGetter, perkInfo);
+                    Console.WriteLine("add perk info");
+                    passed = true;
+                    perkInfo.Conditions.Add(new ConditionData() { ActorSkill = (Skill)avSkill!, Value = value });
+                    //Console.WriteLine($"{nameof(floatCOnditionDataGetter.ParameterOneNumber)}:{floatCOnditionDataGetter.ParameterOneNumber}");
+                    //Console.WriteLine($"{(ActorValue)floatCOnditionDataGetter.ParameterOneNumber}");
                 }
+
+                if (passed && !failed) perkInfoList.Add(perkGetter, perkInfo);
             }
 
             return perkInfoList;
-        }
-        private static Skill? GetSkillByActorValue(ActorValue effectMagicSkillActorValue)
-        {
-            return (Skill?)Enum.Parse(typeof(Skill?), effectMagicSkillActorValue.ToString());
         }
     }
 }
