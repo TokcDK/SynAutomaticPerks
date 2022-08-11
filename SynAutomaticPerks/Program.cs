@@ -2,6 +2,7 @@ using Mutagen.Bethesda;
 using Mutagen.Bethesda.Plugins;
 using Mutagen.Bethesda.Skyrim;
 using Mutagen.Bethesda.Synthesis;
+using SkyrimNPCHelpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +25,7 @@ namespace SynAutomaticPerks
         public class ConditionData
         {
             public float Value;
-            public Skill? ActorSkill;
+            public Skill ActorSkill;
         }
         public class PerkInfo
         {
@@ -46,17 +47,42 @@ namespace SynAutomaticPerks
 
                 var npcGetter = npcGetterContext.Record;
                 if (npcGetter == null) continue;
+                
+                if (!npcGetter.TryUnTemplate(state.LinkCache, NpcConfiguration.TemplateFlag.Stats, out var untemplatedNpc)) continue;
 
                 bool isNullPerks = npcGetter.Perks == null;
-                bool isHavePerks = !isNullPerks && npcGetter.Perks!.Count>0;
+                bool isHavePerks = !isNullPerks && npcGetter.Perks!.Count > 0;
+                HashSet<FormKey> npcPerks = new(npcGetter.Perks!.Select(p => p.Perk.FormKey));
 
-                HashSet<FormKey> npcPerks = new(npcGetter.Perks!.Select(p=>p.Perk.FormKey));
-
-                foreach (var perkGetter in perkInfoList)
+                HashSet<IPerkGetter> perksToAdd = new();
+                foreach (var perkInfo in perkInfoList)
                 {
-                    if (!isNullPerks && isHavePerks && npcPerks.Contains(perkGetter.Key.FormKey)) continue;
+                    if (!isNullPerks && isHavePerks && npcPerks.Contains(perkInfo.Key.FormKey)) continue;
 
+                    bool isAnyConditionFailed = false;
+                    foreach(var perkCondtion in perkInfo.Value.Conditions)
+                    {
+                        var npcSkillValue = untemplatedNpc.PlayerSkills!.SkillValues[perkCondtion.ActorSkill] + untemplatedNpc.PlayerSkills.SkillOffsets[perkCondtion.ActorSkill];
+                        if (npcSkillValue < perkCondtion.Value) { isAnyConditionFailed = true; break; }
+                    }
 
+                    if (isAnyConditionFailed) continue;
+
+                    perksToAdd.Add(perkInfo.Key);
+                }
+
+                if (perksToAdd.Count == 0) continue;
+
+                var npc = state.PatchMod.Npcs.GetOrAddAsOverride(npcGetter);
+                if (npc.Perks == null) npc.Perks = new Noggog.ExtendedList<PerkPlacement>();
+                foreach(var perkToAdd in perksToAdd)
+                {
+                    var perkItem = new PerkPlacement
+                    {
+                        Perk = perkToAdd.AsLink(),
+                        Rank = 1
+                    };
+                    npc.Perks.Add(perkItem);
                 }
             }
         }
@@ -113,7 +139,7 @@ namespace SynAutomaticPerks
                             }
 
                             passed = true;
-                            perkInfo.Conditions.Add(new ConditionData() { ActorSkill = skill, Value = value });
+                            perkInfo.Conditions.Add(new ConditionData() { ActorSkill = (Skill)skill, Value = value });
                             //Console.WriteLine($"{nameof(floatCOnditionDataGetter.ParameterOneNumber)}:{floatCOnditionDataGetter.ParameterOneNumber}");
                             //Console.WriteLine($"{(ActorValue)floatCOnditionDataGetter.ParameterOneNumber}");
                         }
