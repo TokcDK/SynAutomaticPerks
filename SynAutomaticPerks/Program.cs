@@ -52,7 +52,7 @@ namespace SynAutomaticPerks
 
                 bool isNullPerks = npcGetter.Perks == null;
                 bool isHavePerks = !isNullPerks && npcGetter.Perks!.Count > 0;
-                HashSet<FormKey> npcPerks = new(npcGetter.Perks!.Select(p => p.Perk.FormKey));
+                HashSet<FormKey> npcPerks = isHavePerks? new(npcGetter.Perks!.Select(p => p.Perk.FormKey)):new();
 
                 HashSet<IPerkGetter> perksToAdd = new();
                 foreach (var perkInfo in perkInfoList)
