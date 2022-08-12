@@ -42,6 +42,7 @@ namespace SynAutomaticPerks
             SetAsisAutoSpellsIniValuesToSettings();
 
             Dictionary<IPerkGetter, PerkInfo> PerkInfoList = GetPerkInfo(state);
+
             AddPerksToNpc(state, PerkInfoList);
         }
 
@@ -374,7 +375,7 @@ namespace SynAutomaticPerks
             bool usePerkInclude = Settings.Value.ASIS.PerkInclusions.Count > 0;
             bool useSpellExclude = Settings.Value.ASIS.PerkExclusons.Count > 0;
 
-            Console.WriteLine($"Get perks");
+            Console.WriteLine($"Get valid perks infos..");
             foreach (var perkGetterContext in state.LoadOrder.PriorityOrder.Perk().WinningContextOverrides())
             {
                 if (perkGetterContext == null) continue;
@@ -425,7 +426,7 @@ namespace SynAutomaticPerks
                     var actorValue = (ActorValue)floatCOnditionDataGetter.ParameterOneNumber;
                     if (!validActorValues.Contains(actorValue)) continue;
 
-                    Console.WriteLine($"actorValue:{actorValue}");
+                    //Console.WriteLine($"actorValue:{actorValue}");
                     if (!Enum.TryParse(typeof(Skill), actorValue.ToString(), out var avSkill))
                     {
                         //Console.WriteLine("failed to get skill");
@@ -433,9 +434,9 @@ namespace SynAutomaticPerks
                         continue;
                     }
                     var value = floatCOnditionGetter.ComparisonValue;
-                    Console.WriteLine($"actorValue:{actorValue},skill:{avSkill},value:{value}");
+                    //Console.WriteLine($"actorValue:{actorValue},skill:{avSkill},value:{value}");
 
-                    Console.WriteLine("add perk info");
+                    //Console.WriteLine("add perk info");
                     passed = true;
                     perkInfo.Conditions.Add(new ConditionData() { ActorSkill = (Skill)avSkill!, Value = value });
                     //Console.WriteLine($"{nameof(floatCOnditionDataGetter.ParameterOneNumber)}:{floatCOnditionDataGetter.ParameterOneNumber}");
@@ -445,6 +446,7 @@ namespace SynAutomaticPerks
                 if (passed && !failed) perkInfoList.Add(perkGetter, perkInfo);
             }
 
+            Console.WriteLine($"Added {perkInfoList.Count} infos!");
             return perkInfoList;
         }
     }
