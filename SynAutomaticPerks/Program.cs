@@ -159,7 +159,7 @@ namespace SynAutomaticPerks
             foreach (var npcGetterContext in state.LoadOrder.PriorityOrder.Npc().WinningContextOverrides())
             {
                 if (npcGetterContext == null) continue;
-                if (patchedNpcCount >= 2000) continue;
+                //if (patchedNpcCount >= 2000) continue;
 
                 // skip invalid
                 //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check npc getter");
