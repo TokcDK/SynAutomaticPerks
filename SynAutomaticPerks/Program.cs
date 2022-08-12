@@ -378,10 +378,10 @@ namespace SynAutomaticPerks
                 //if (IsDebugSpell) Console.WriteLine($"{spellDebugID} check if already added");
                 //if (spellInfoList.ContainsKey(spellGetter)) continue;
                 //if (IsDebugSpell) Console.WriteLine($"{spellDebugID} check if has empty edid");
-                if (string.IsNullOrWhiteSpace(perkGetter.EditorID)) continue;
-                if (usePerkInclude && !perkGetter.EditorID.HasAnyFromList(Settings.Value.ASIS.PerkInclusions)) continue;
+                var edid = perkGetter.EditorID == null ? "" : perkGetter.EditorID;
+                if (usePerkInclude && (edid=="" || !edid.HasAnyFromList(Settings.Value.ASIS.PerkInclusions))) continue;
                 //if (IsDebugSpell) Console.WriteLine($"{spellDebugID} check if the spell is in excluded list");
-                if (useSpellExclude && perkGetter.EditorID.HasAnyFromList(Settings.Value.ASIS.PerkExclusons)) continue;
+                if (useSpellExclude && edid.HasAnyFromList(Settings.Value.ASIS.PerkExclusons)) continue;
 
 
                 bool failed = false;
