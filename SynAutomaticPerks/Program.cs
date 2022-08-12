@@ -299,7 +299,7 @@ namespace SynAutomaticPerks
                 var sourceModKey = state.LinkCache.ResolveAllContexts<IPerk, IPerkGetter>(perkGetter.FormKey).Last().ModKey;
                 if (useModInclude && !Settings.Value.NativeSettings.PerkModInclude.Contains(sourceModKey)
                     && !sourceModKey.FileName.String.HasAnyFromList(Settings.Value.ASIS.PerkModInclusions)) continue;
-                Console.WriteLine($"1");
+
                 //if (IsDebugSpell) Console.WriteLine($"{spellDebugID} check if spell cast type is valid");
                 //if (!IsValidSpellType(spellGetter)) continue;
                 //if (IsDebugSpell) Console.WriteLine($"{spellDebugID} check if already added");
@@ -309,10 +309,8 @@ namespace SynAutomaticPerks
                 bool edidEmpty = edid == "";
                 if (usePerkInclude && !edidEmpty && !edid.HasAnyFromList(Settings.Value.ASIS.PerkInclusions)) continue;
                 //if (IsDebugSpell) Console.WriteLine($"{spellDebugID} check if the spell is in excluded list");
-                Console.WriteLine($"2");
                 if (usePerkExclude && !edidEmpty && edid.HasAnyFromList(Settings.Value.ASIS.PerkExclusons)) continue;
 
-                Console.WriteLine($"3");
                 bool failed = false;
                 bool passed = false;
                 var perkInfo = new PerkInfo();
