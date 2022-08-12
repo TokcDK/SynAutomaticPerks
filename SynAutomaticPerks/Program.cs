@@ -170,7 +170,7 @@ namespace SynAutomaticPerks
                     Compare = CompareType.Equals
                 };
 
-                var list = Settings.Value.ASIS.PerkModInclusions;
+                var list = Settings.Value.ASIS.ForcedFollowers;
                 if (list.Contains(stringInfo)) continue;
 
                 list.Add(stringInfo);
@@ -184,7 +184,7 @@ namespace SynAutomaticPerks
                     Compare = CompareType.Equals
                 };
 
-                var list = Settings.Value.ASIS.PerkModInclusions;
+                var list = Settings.Value.ASIS.FollowersFactions;
                 if (list.Contains(stringInfo)) continue;
 
                 list.Add(stringInfo);
@@ -241,20 +241,23 @@ namespace SynAutomaticPerks
             bool useNpcExclude = Settings.Value.ASIS.NPCExclusions.Count > 0;
             bool useNpcInclude = Settings.Value.ASIS.NPCInclusions.Count > 0;
             bool useNpcKeywordExclude = Settings.Value.ASIS.NPCKeywordExclusions.Count > 0;
+            bool useFollowersFactions = Settings.Value.ASIS.FollowersFactions.Count > 0;
+            bool useForceFollowers = Settings.Value.ASIS.ForcedFollowers.Count > 0;
 
-            int limit = 0; // for tests
+            int patchedNpcCount = 0; // for tests
+            int showProgressInfoCounter = 1000; // for tests
+            Console.WriteLine($"Patching npcs...");
             foreach (var npcGetterContext in state.LoadOrder.PriorityOrder.Npc().WinningContextOverrides())
             {
                 if (npcGetterContext == null) continue;
                 //if (limit >= 100) continue;
-
-                if (npcGetterContext == null) continue;
 
                 // skip invalid
                 //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check npc getter");
                 var npcGetter = npcGetterContext.Record;
                 if (npcGetter == null) continue;
                 if (npcGetter.IsDeleted) continue;
+                if (string.IsNullOrWhiteSpace(npcGetter.EditorID)) continue;
 
                 var sourceModKey = state.LinkCache.ResolveAllContexts<INpc, INpcGetter>(npcGetter.FormKey).Last().ModKey;
                 //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check if npc source mod is in excluded list");
@@ -265,13 +268,18 @@ namespace SynAutomaticPerks
                 //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check if npc has spells");
                 //if (npcGetter.ActorEffect == null) continue;
                 //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check if npc edid is not empty");
-                if (string.IsNullOrWhiteSpace(npcGetter.EditorID)) continue;
+
+                // followers specific checks
+                bool IsFolower = useForceFollowers && npcGetter.EditorID.HasAnyFromList(Settings.Value.ASIS.ForcedFollowers);
+                if (!IsFolower) IsFolower = useFollowersFactions && npcGetter.Factions.Any(f=>f.Faction.FormKey.ToString().Replace(':', '=').HasAnyFromList(Settings.Value.ASIS.FollowersFactions));
+
+                // npc specific checks, not followers
                 //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check if npc in ignore list");
-                if (useNpcExclude && npcGetter.EditorID.HasAnyFromList(Settings.Value.ASIS.NPCExclusions)) continue;
+                if (useNpcExclude && !IsFolower && npcGetter.EditorID.HasAnyFromList(Settings.Value.ASIS.NPCExclusions)) continue;
                 //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check if npc in included list");
-                if (useNpcInclude && !npcGetter.EditorID.HasAnyFromList(Settings.Value.ASIS.NPCInclusions)) continue;
+                if (useNpcInclude && !IsFolower && !npcGetter.EditorID.HasAnyFromList(Settings.Value.ASIS.NPCInclusions)) continue;
                 //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check if npc has keywords from ignore list");
-                if (useNpcKeywordExclude && npcGetter.Keywords != null)
+                if (useNpcKeywordExclude && !IsFolower && npcGetter.Keywords != null)
                 {
                     bool skip = false;
                     foreach (var keywordGetterFormLink in npcGetter.Keywords)
@@ -298,7 +306,7 @@ namespace SynAutomaticPerks
                 HashSet<IPerkGetter> perksToAdd = new();
                 foreach (var perkInfo in perkInfoList)
                 {
-                    if (!isNullPerks && isHavePerks && npcPerks.Contains(perkInfo.Key.FormKey)) continue;
+                    if (isHavePerks && npcPerks.Contains(perkInfo.Key.FormKey)) continue;
 
                     bool isAnyConditionFailed = false;
                     foreach(var perkCondtion in perkInfo.Value.Conditions)
@@ -314,9 +322,9 @@ namespace SynAutomaticPerks
 
                 if (perksToAdd.Count == 0) continue;
 
-                limit++;
+                patchedNpcCount++;
                 var npc = state.PatchMod.Npcs.GetOrAddAsOverride(npcGetter);
-                if (npc.Perks == null) npc.Perks = new Noggog.ExtendedList<PerkPlacement>();
+                if (isNullPerks) npc.Perks = new Noggog.ExtendedList<PerkPlacement>();
                 foreach(var perkToAdd in perksToAdd)
                 {
                     var perkItem = new PerkPlacement
@@ -324,11 +332,18 @@ namespace SynAutomaticPerks
                         Perk = perkToAdd.AsLink(),
                         Rank = 1
                     };
-                    npc.Perks.Add(perkItem);
+                    npc.Perks!.Add(perkItem);
                 }
 
-                Console.WriteLine($"Added {perksToAdd.Count} perks to {npc.EditorID}");
+                if (--showProgressInfoCounter <= 0)
+                {
+                    showProgressInfoCounter = 1000;
+                    Console.WriteLine($"Still patching npcs.. Patched {patchedNpcCount} npcs..");
+                }
+                //Console.WriteLine($"Added {perksToAdd.Count} perks to {npc.EditorID}");
             }
+
+            Console.WriteLine($"\n\nOverall patched {patchedNpcCount} npcs");
         }
 
         private static Dictionary<IPerkGetter, PerkInfo> GetPerkInfo(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)

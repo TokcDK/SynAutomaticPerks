@@ -60,5 +60,13 @@ namespace SynAutomaticPerks
         //[SynthesisSettingName("SpellModExclude")]
         [SynthesisTooltip("Strings determine included mods for perks")]
         public HashSet<StringCompareSetting> PerkModInclusions = new();
+        [SynthesisOrder]
+        [SynthesisDiskName("ForcedFollowers")]
+        [SynthesisTooltip("Strings determine followers by edid")]
+        public HashSet<StringCompareSetting> ForcedFollowers = new();
+        [SynthesisOrder]
+        [SynthesisDiskName("FollowersFactions")]
+        [SynthesisTooltip("Strings determine follower factions")]
+        public HashSet<StringCompareSetting> FollowersFactions = new();
     }
 }
