@@ -27,13 +27,19 @@ namespace SkyrimNPCHelpers
             return true;
         }
 
+        /// <summary>
+        /// Untemplated npc has not input flag or null template
+        /// </summary>
+        /// <param name="npcGetter"></param>
+        /// <param name="linkCache"></param>
+        /// <param name="templateFlag"></param>
+        /// <returns></returns>
         public static INpcGetter? UnTemplate(this INpcGetter npcGetter, Mutagen.Bethesda.Plugins.Cache.ILinkCache<ISkyrimMod, ISkyrimModGetter> linkCache, NpcConfiguration.TemplateFlag templateFlag)
         {
-            if (!npcGetter.Configuration.TemplateFlags.HasFlag(templateFlag)) return npcGetter;
+            if (npcGetter.Template == null || !npcGetter.Configuration.TemplateFlags.HasFlag(templateFlag)) return npcGetter;
 
-            if (npcGetter.Template == null
-                || npcGetter.Template.IsNull
-                || npcGetter.Template.FormKey.IsNull
+            if (npcGetter.Template.IsNull
+                //|| npcGetter.Template.FormKey.IsNull
                 || !npcGetter!.Template.TryResolve(linkCache, out var templateNpcSpawnGetter)
                 || templateNpcSpawnGetter is not INpcGetter templateNpcGetter
                 )
