@@ -332,7 +332,7 @@ namespace SynAutomaticPerks
         private static Dictionary<IPerkGetter, PerkInfo> GetPerkInfo(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
             Dictionary<IPerkGetter, PerkInfo> perkInfoList = new();
-            HashSet<ActorValue> validActorValues = new()
+            HashSet<ActorValue> validActorValues = new(18)
                 {
                     ActorValue.OneHanded,
                     ActorValue.TwoHanded,
