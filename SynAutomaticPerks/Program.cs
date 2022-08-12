@@ -264,7 +264,7 @@ namespace SynAutomaticPerks
                 //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check if npc source mod is in excluded list");
                 if (useNpcModExclude && Settings.Value.NpcModExclude.Contains(sourceModKey)) continue;
                 //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check if npc source mod is in included list");
-                //if (useNpcModExcludeByName && sourceModKey.FileName.String.HasAnyFromList(Settings.Value.ASIS.NPCModExclusions)) continue;
+                if (useNpcModExcludeByName && sourceModKey.FileName.String.HasAnyFromList(Settings.Value.ASIS.NPCModExclusions)) continue;
 
                 //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check if npc has spells");
                 //if (npcGetter.ActorEffect == null) continue;
