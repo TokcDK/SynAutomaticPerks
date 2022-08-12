@@ -254,6 +254,8 @@ namespace SynAutomaticPerks
                 //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check npc getter");
                 var npcGetter = npcGetterContext.Record;
                 if (npcGetter == null) continue;
+                if (npcGetter.IsDeleted) continue;
+
                 var sourceModKey = state.LinkCache.ResolveAllContexts<INpc, INpcGetter>(npcGetter.FormKey).Last().ModKey;
                 //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check if npc source mod is in excluded list");
                 if (useNpcModExclude && Settings.Value.NpcModExclude.Contains(sourceModKey)) continue;
