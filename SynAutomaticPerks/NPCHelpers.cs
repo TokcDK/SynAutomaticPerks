@@ -26,38 +26,22 @@ namespace SkyrimNPCHelpers
             npc = untemplatedNpc;
             return true;
         }
+
         public static INpcGetter? UnTemplate(this INpcGetter npcGetter, Mutagen.Bethesda.Plugins.Cache.ILinkCache<ISkyrimMod, ISkyrimModGetter> linkCache, NpcConfiguration.TemplateFlag templateFlag)
         {
-            INpcGetter? untemplatedNpc = npcGetter;
-            while (untemplatedNpc.Configuration.TemplateFlags.HasFlag(templateFlag))
+            if (!npcGetter.Configuration.TemplateFlags.HasFlag(templateFlag)) return npcGetter;
+
+            if (npcGetter.Template == null
+                || npcGetter.Template.IsNull
+                || npcGetter.Template.FormKey.IsNull
+                || !npcGetter!.Template.TryResolve(linkCache, out var templateNpcSpawnGetter)
+                || templateNpcSpawnGetter is not INpcGetter templateNpcGetter
+                )
             {
-                if (untemplatedNpc.Template == null
-                    || untemplatedNpc.Template.IsNull
-                    || untemplatedNpc.Template.FormKey.IsNull
-                    || !untemplatedNpc!.Template.TryResolve(linkCache, out var templateNpcSpawnGetter)
-                    )
-                {
-                    untemplatedNpc = null;
-                    break;
-                }
-
-                var templateNpcGetterFormlink = new FormLink<INpcGetter>(templateNpcSpawnGetter.FormKey);
-                if (templateNpcGetterFormlink == null)
-                {
-                    untemplatedNpc = null;
-                    break;
-                }
-
-                if (!templateNpcGetterFormlink.TryResolve(linkCache, out var templateNpcGetter))
-                {
-                    untemplatedNpc = null;
-                    break;
-                }
-
-                untemplatedNpc = templateNpcGetter;
+                return null;
             }
 
-            return untemplatedNpc;
+            return UnTemplate(templateNpcGetter, linkCache, templateFlag);
         }
     }
 }
