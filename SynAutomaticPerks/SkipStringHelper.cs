@@ -19,9 +19,20 @@ namespace StringCompareSettings
         public string? Comment;
     }
 
-    public class StringCompareSettingContainer
+    [SynthesisObjectNameMember(nameof(Comment))]
+    public class StringCompareSettingGroup
     {
         [SynthesisSettingName("String")]
+        [SynthesisTooltip("Click to open string parameters")]
+        public List<StringCompareSetting?> StringSetting = new();
+        [SynthesisSettingName("Comment")]
+        [SynthesisTooltip("Some comment info about the group")]
+        public string Comment = "";
+    }
+
+    public class StringCompareSettingContainer
+    {
+        [SynthesisSettingName("StringSetting")]
         [SynthesisTooltip("Click to open string parameters")]
         public StringCompareSetting? StringSetting;
     }

@@ -237,13 +237,13 @@ namespace SynAutomaticPerks
 
         private static void AddPerksToNpc(IPatcherState<ISkyrimMod, ISkyrimModGetter> state, Dictionary<IPerkGetter, PerkInfo> perkInfoList)
         {
-            bool useNpcModExclude = Settings.Value.NpcModExclude.Count > 0;
-            bool useNpcModExcludeByName = Settings.Value.NpcModExclude.Count > 0;
+            bool useNpcModExclude = Settings.Value.NativeSettings.NpcModExclude.Count > 0;
+            bool useNpcModExcludeByName = Settings.Value.NativeSettings.NpcModExclude.Count > 0;
             bool useNpcExclude = Settings.Value.ASIS.NPCExclusions.Count > 0;
             bool useNpcInclude = Settings.Value.ASIS.NPCInclusions.Count > 0;
             bool useNpcKeywordExclude = Settings.Value.ASIS.NPCKeywordExclusions.Count > 0;
-            bool useFollowersFactions = Settings.Value.FollowersFactions.Count>0 || Settings.Value.ASIS.FollowersFactions.Count > 0;
-            bool useForceFollowers = Settings.Value.ForcedFollowersNpc.Count>0 || Settings.Value.ASIS.ForcedFollowers.Count > 0;
+            bool useFollowersFactions = Settings.Value.NativeSettings.FollowersFactions.Count>0 || Settings.Value.ASIS.FollowersFactions.Count > 0;
+            bool useForceFollowers = Settings.Value.NativeSettings.ForcedFollowersNpc.Count>0 || Settings.Value.ASIS.ForcedFollowers.Count > 0;
 
             int patchedNpcCount = 0; // for tests
             int showProgressInfoCounter = 1000; // for tests
@@ -262,7 +262,7 @@ namespace SynAutomaticPerks
 
                 var sourceModKey = state.LinkCache.ResolveAllContexts<INpc, INpcGetter>(npcGetter.FormKey).Last().ModKey;
                 //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check if npc source mod is in excluded list");
-                if (useNpcModExclude && Settings.Value.NpcModExclude.Contains(sourceModKey)) continue;
+                if (useNpcModExclude && Settings.Value.NativeSettings.NpcModExclude.Contains(sourceModKey)) continue;
                 //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check if npc source mod is in included list");
                 if (useNpcModExcludeByName && sourceModKey.FileName.String.HasAnyFromList(Settings.Value.ASIS.NPCModExclusions)) continue;
 
@@ -271,8 +271,8 @@ namespace SynAutomaticPerks
                 //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check if npc edid is not empty");
 
                 // followers specific checks
-                bool IsFolower = useForceFollowers && (Settings.Value.ForcedFollowersNpc.Contains(npcGetter) || npcGetter.EditorID.HasAnyFromList(Settings.Value.ASIS.ForcedFollowers));
-                if (!IsFolower) IsFolower = useFollowersFactions && npcGetter.Factions.Any(f => (Settings.Value.FollowersFactions.Contains(f.Faction) || f.Faction.FormKey.ToString().Replace(':', '=').HasAnyFromList(Settings.Value.ASIS.FollowersFactions)));
+                bool IsFolower = useForceFollowers && (Settings.Value.NativeSettings.ForcedFollowersNpc.Contains(npcGetter) || npcGetter.EditorID.HasAnyFromList(Settings.Value.ASIS.ForcedFollowers));
+                if (!IsFolower) IsFolower = useFollowersFactions && npcGetter.Factions.Any(f => (Settings.Value.NativeSettings.FollowersFactions.Contains(f.Faction) || f.Faction.FormKey.ToString().Replace(':', '=').HasAnyFromList(Settings.Value.ASIS.FollowersFactions)));
 
                 // npc specific checks, not followers
                 //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check if npc in ignore list");
@@ -371,7 +371,7 @@ namespace SynAutomaticPerks
                     ActorValue.Restoration,
                     ActorValue.Enchanting,
                 };
-            bool useModInclude = Settings.Value.PerkModInclude.Count > 0 || Settings.Value.ASIS.PerkModInclusions.Count > 0;
+            bool useModInclude = Settings.Value.NativeSettings.PerkModInclude.Count > 0 || Settings.Value.ASIS.PerkModInclusions.Count > 0;
             bool usePerkInclude = Settings.Value.ASIS.PerkInclusions.Count > 0;
             bool useSpellExclude = Settings.Value.ASIS.PerkExclusons.Count > 0;
 
@@ -387,7 +387,7 @@ namespace SynAutomaticPerks
 
                 //if (IsDebugSpell) Console.WriteLine($"{spellDebugID} check if spel is from included mods");
                 var sourceModKey = state.LinkCache.ResolveAllContexts<IPerk, IPerkGetter>(perkGetter.FormKey).Last().ModKey;
-                if (useModInclude && !Settings.Value.PerkModInclude.Contains(sourceModKey)
+                if (useModInclude && !Settings.Value.NativeSettings.PerkModInclude.Contains(sourceModKey)
                     && !sourceModKey.FileName.String.HasAnyFromList(Settings.Value.ASIS.PerkModInclusions)) continue;
 
 

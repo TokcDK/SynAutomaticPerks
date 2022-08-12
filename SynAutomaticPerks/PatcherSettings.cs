@@ -9,6 +9,17 @@ namespace SynAutomaticPerks
     public class PatcherSettings
     {
         [SynthesisOrder]
+        [SynthesisTooltip("Native settings of the patcher containing more convenient way to add items to lists")]
+        public NativeSettings NativeSettings = new();
+
+        [SynthesisOrder]
+        [SynthesisTooltip("ASIS like options, can be read from ASIS AutomaticSpell.ini if exist or entered manually here")]
+        public ASISOptions ASIS = new();
+    }
+
+    public class NativeSettings
+    {
+        [SynthesisOrder]
         [SynthesisDiskName("NpcModExclude")]
         //[SynthesisSettingName("Npc Keyword Exclude")]
         [SynthesisTooltip("Determine excluded mods for npcs")]
@@ -26,10 +37,6 @@ namespace SynAutomaticPerks
         [SynthesisDiskName("ForcedFollowersNpc")]
         [SynthesisTooltip("List of npcs which will be detected as followers")]
         public HashSet<FormLink<INpcGetter>> ForcedFollowersNpc = new();
-
-        [SynthesisOrder]
-        [SynthesisTooltip("ASIS like options, can be read from ASIS AutomaticSpell.ini if exist or entered manually here")]
-        public ASISOptions ASIS = new();
     }
 
     public class ASISOptions
