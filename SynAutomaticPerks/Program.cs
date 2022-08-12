@@ -1,10 +1,10 @@
+using IniReader;
 using Mutagen.Bethesda;
 using Mutagen.Bethesda.Plugins;
 using Mutagen.Bethesda.Skyrim;
 using Mutagen.Bethesda.Synthesis;
 using SkyrimNPCHelpers;
 using StringCompareSettings;
-using IniReader;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -242,8 +242,8 @@ namespace SynAutomaticPerks
             bool useNpcExclude = Settings.Value.ASIS.NPCExclusions.Count > 0;
             bool useNpcInclude = Settings.Value.ASIS.NPCInclusions.Count > 0;
             bool useNpcKeywordExclude = Settings.Value.ASIS.NPCKeywordExclusions.Count > 0;
-            bool useFollowersFactions = Settings.Value.ASIS.FollowersFactions.Count > 0;
-            bool useForceFollowers = Settings.Value.ASIS.ForcedFollowers.Count > 0;
+            bool useFollowersFactions = Settings.Value.FollowersFactions.Count>0 || Settings.Value.ASIS.FollowersFactions.Count > 0;
+            bool useForceFollowers = Settings.Value.ForcedFollowersNpc.Count>0 || Settings.Value.ASIS.ForcedFollowers.Count > 0;
 
             int patchedNpcCount = 0; // for tests
             int showProgressInfoCounter = 1000; // for tests
@@ -271,8 +271,8 @@ namespace SynAutomaticPerks
                 //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check if npc edid is not empty");
 
                 // followers specific checks
-                bool IsFolower = useForceFollowers && npcGetter.EditorID.HasAnyFromList(Settings.Value.ASIS.ForcedFollowers);
-                if (!IsFolower) IsFolower = useFollowersFactions && npcGetter.Factions.Any(f=>f.Faction.FormKey.ToString().Replace(':', '=').HasAnyFromList(Settings.Value.ASIS.FollowersFactions));
+                bool IsFolower = useForceFollowers && (Settings.Value.ForcedFollowersNpc.Contains(npcGetter) || npcGetter.EditorID.HasAnyFromList(Settings.Value.ASIS.ForcedFollowers));
+                if (!IsFolower) IsFolower = useFollowersFactions && npcGetter.Factions.Any(f => (Settings.Value.FollowersFactions.Contains(f.Faction) || f.Faction.FormKey.ToString().Replace(':', '=').HasAnyFromList(Settings.Value.ASIS.FollowersFactions)));
 
                 // npc specific checks, not followers
                 //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check if npc in ignore list");
@@ -297,12 +297,12 @@ namespace SynAutomaticPerks
                     //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} skip npc if has excluded keyword:{skip}");
                     if (skip) continue;
                 }
-                
+
                 if (!npcGetter.TryUnTemplate(state.LinkCache, NpcConfiguration.TemplateFlag.Stats, out var untemplatedNpc)) continue;
 
                 bool isNullPerks = npcGetter.Perks == null;
                 bool isHavePerks = !isNullPerks && npcGetter.Perks!.Count > 0;
-                HashSet<FormKey> npcPerks = isHavePerks? new(npcGetter.Perks!.Select(p => p.Perk.FormKey)):new();
+                HashSet<FormKey> npcPerks = isHavePerks ? new(npcGetter.Perks!.Select(p => p.Perk.FormKey)) : new();
 
                 HashSet<IPerkGetter> perksToAdd = new();
                 foreach (var perkInfo in perkInfoList)
@@ -310,7 +310,7 @@ namespace SynAutomaticPerks
                     if (isHavePerks && npcPerks.Contains(perkInfo.Key.FormKey)) continue;
 
                     bool isAnyConditionFailed = false;
-                    foreach(var perkCondtion in perkInfo.Value.Conditions)
+                    foreach (var perkCondtion in perkInfo.Value.Conditions)
                     {
                         var npcSkillValue = untemplatedNpc.PlayerSkills!.SkillValues[perkCondtion.ActorSkill] + untemplatedNpc.PlayerSkills.SkillOffsets[perkCondtion.ActorSkill];
                         if (npcSkillValue < perkCondtion.Value) { isAnyConditionFailed = true; break; }
@@ -326,7 +326,7 @@ namespace SynAutomaticPerks
                 patchedNpcCount++;
                 var npc = state.PatchMod.Npcs.GetOrAddAsOverride(npcGetter);
                 if (isNullPerks) npc.Perks = new Noggog.ExtendedList<PerkPlacement>();
-                foreach(var perkToAdd in perksToAdd)
+                foreach (var perkToAdd in perksToAdd)
                 {
                     var perkItem = new PerkPlacement
                     {
@@ -397,7 +397,7 @@ namespace SynAutomaticPerks
                 //if (spellInfoList.ContainsKey(spellGetter)) continue;
                 //if (IsDebugSpell) Console.WriteLine($"{spellDebugID} check if has empty edid");
                 var edid = perkGetter.EditorID == null ? "" : perkGetter.EditorID;
-                if (usePerkInclude && (edid=="" || !edid.HasAnyFromList(Settings.Value.ASIS.PerkInclusions))) continue;
+                if (usePerkInclude && (edid == "" || !edid.HasAnyFromList(Settings.Value.ASIS.PerkInclusions))) continue;
                 //if (IsDebugSpell) Console.WriteLine($"{spellDebugID} check if the spell is in excluded list");
                 if (useSpellExclude && edid.HasAnyFromList(Settings.Value.ASIS.PerkExclusons)) continue;
 

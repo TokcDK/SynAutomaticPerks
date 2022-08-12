@@ -1,4 +1,5 @@
 ﻿using Mutagen.Bethesda.Plugins;
+using Mutagen.Bethesda.Skyrim;
 using Mutagen.Bethesda.Synthesis.Settings;
 using StringCompareSettings;
 using System.Collections.Generic;
@@ -17,6 +18,14 @@ namespace SynAutomaticPerks
         //[SynthesisSettingName("SpellModExclude")]
         [SynthesisTooltip("Determine included mods for perks")]
         public HashSet<ModKey> PerkModInclude = new();
+        [SynthesisOrder]
+        [SynthesisDiskName("FollowersFactions")]
+        [SynthesisTooltip("Followers factions to detect followers")]
+        public HashSet<FormLink<IFactionGetter>> FollowersFactions = new();
+        [SynthesisOrder]
+        [SynthesisDiskName("ForcedFollowersNpc")]
+        [SynthesisTooltip("List of npcs which will be detected as followers")]
+        public HashSet<FormLink<INpcGetter>> ForcedFollowersNpc = new();
 
         [SynthesisOrder]
         [SynthesisTooltip("ASIS like options, can be read from ASIS AutomaticSpell.ini if exist or entered manually here")]
