@@ -22,9 +22,9 @@ namespace StringCompareSettings
     [SynthesisObjectNameMember(nameof(Comment))]
     public class StringCompareSettingGroup
     {
-        [SynthesisSettingName("String")]
+        [SynthesisSettingName("StringsList")]
         [SynthesisTooltip("Click to open string parameters")]
-        public List<StringCompareSetting?> StringSetting = new();
+        public List<StringCompareSetting> StringsList = new();
         [SynthesisSettingName("Comment")]
         [SynthesisTooltip("Some comment info about the group")]
         public string Comment = "";
@@ -72,6 +72,39 @@ namespace StringCompareSettings
 
             return false;
         }
+        public static bool HasAnyFromList(this string? inputString, IEnumerable<StringCompareSettingGroup> list, IEnumerable<StringCompareSettingGroup>? blackList = null)
+        {
+            //if (IsUsingList) return false;
+            if (string.IsNullOrWhiteSpace(inputString)) return false;
+
+            if (blackList != null)
+                foreach (var group in blackList)
+                {
+                    if (group == null) continue;
+
+                    foreach(var setting in group.StringsList)
+                    {
+                        if (setting == null) continue;
+
+                        if (IsFound(inputString, setting)) return false;
+                    }
+                }
+
+            foreach (var group in list)
+            {
+                if (group == null) continue;
+
+                foreach (var setting in group.StringsList)
+                {
+                    if (setting == null) continue;
+
+                    if (IsFound(inputString, setting)) return true;
+                }
+            }
+
+            return false;
+        }
+
         public static bool HasAnyFromList(this string? inputString, IEnumerable<StringCompareSetting> list, IEnumerable<StringCompareSetting>? blackList = null)
         {
             //if (IsUsingList) return false;
@@ -94,6 +127,43 @@ namespace StringCompareSettings
 
             return false;
         }
+        public static bool HasAllFromList(this string? inputString, IEnumerable<StringCompareSettingGroup> list, IEnumerable<StringCompareSettingGroup>? blackList = null)
+        {
+            //if (IsUsingList) return false;
+            if (string.IsNullOrWhiteSpace(inputString)) return false;
+
+            if (blackList != null)
+                foreach (var group in blackList)
+                {
+                    if (group == null) continue;
+
+                    foreach (var setting in group.StringsList)
+                    {
+                        if (setting == null) continue;
+
+                        if (IsFound(inputString, setting)) return false;
+                    }
+                }
+
+            int count = list.Count();
+            foreach (var group in list)
+            {
+                if (group == null) continue;
+
+                foreach (var setting in group.StringsList)
+                {
+                    if (setting == null) continue;
+
+                    if (!IsFound(inputString, setting)) return false;
+
+                    count--;
+                }
+            }
+
+            if (count == 0) return true;
+
+            return false;
+        }
         public static bool HasAllFromList(this string? inputString, IEnumerable<StringCompareSetting> list, IEnumerable<StringCompareSetting>? blackList = null)
         {
             //if (IsUsingList) return false;
@@ -110,7 +180,9 @@ namespace StringCompareSettings
             int count = list.Count();
             foreach (var setting in list)
             {
-                if (setting != null && !IsFound(inputString, setting)) return false;
+                if (setting == null) continue;
+
+                if (!IsFound(inputString, setting)) return false;
 
                 count--;
             }

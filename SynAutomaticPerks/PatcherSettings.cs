@@ -45,44 +45,44 @@ namespace SynAutomaticPerks
         [SynthesisDiskName("NPCInclusions")]
         //[SynthesisSettingName("NPC Include")]
         [SynthesisTooltip("Strings determine included npcs by editor id")]
-        public HashSet<StringCompareSetting> NPCInclusions = new();
+        public HashSet<StringCompareSettingGroup> NPCInclusions = new();
         [SynthesisOrder]
         [SynthesisDiskName("NPCExclusions")]
         //[SynthesisSettingName("NPC Exclude")]
         [SynthesisTooltip("Strings determine excluded npcs by editor id")]
-        public HashSet<StringCompareSetting> NPCExclusions = new();
+        public HashSet<StringCompareSettingGroup> NPCExclusions = new();
         [SynthesisOrder]
         [SynthesisDiskName("NPCModExclusions")]
         //[SynthesisSettingName("Npc Keyword Exclude")]
         [SynthesisTooltip("Strings determine excluded mods for npcs")]
-        public HashSet<StringCompareSetting> NPCModExclusions = new();
+        public HashSet<StringCompareSettingGroup> NPCModExclusions = new();
         [SynthesisOrder]
         [SynthesisDiskName("NPCKeywordExclusions")]
         //[SynthesisSettingName("Npc Keyword Exclude")]
         [SynthesisTooltip("Strings determine excluded npcs by editor id")]
-        public HashSet<StringCompareSetting> NPCKeywordExclusions = new();
+        public HashSet<StringCompareSettingGroup> NPCKeywordExclusions = new();
         [SynthesisOrder]
         [SynthesisDiskName("PerkInclusions")]
         //[SynthesisSettingName("Npc Keyword Exclude")]
         [SynthesisTooltip("Strings determine list of icluded perks to add only. All if empty")]
-        public HashSet<StringCompareSetting> PerkInclusions = new();
+        public HashSet<StringCompareSettingGroup> PerkInclusions = new();
         [SynthesisOrder]
         [SynthesisDiskName("PerkExclusons")]
         //[SynthesisSettingName("Spell Exclude")]
         [SynthesisTooltip("Strings determine excluded perks by editor id")]
-        public HashSet<StringCompareSetting> PerkExclusons = new();
+        public HashSet<StringCompareSettingGroup> PerkExclusons = new();
         [SynthesisOrder]
         [SynthesisDiskName("PerkModInclusions")]
         //[SynthesisSettingName("SpellModExclude")]
         [SynthesisTooltip("Strings determine included mods for perks")]
-        public HashSet<StringCompareSetting> PerkModInclusions = new();
+        public HashSet<StringCompareSettingGroup> PerkModInclusions = new();
         [SynthesisOrder]
         [SynthesisDiskName("ForcedFollowers")]
         [SynthesisTooltip("Strings determine followers by edid")]
-        public HashSet<StringCompareSetting> ForcedFollowers = new();
+        public HashSet<StringCompareSettingGroup> ForcedFollowers = new();
         [SynthesisOrder]
         [SynthesisDiskName("FollowersFactions")]
         [SynthesisTooltip("Strings determine follower factions")]
-        public HashSet<StringCompareSetting> FollowersFactions = new();
+        public HashSet<StringCompareSettingGroup> FollowersFactions = new();
     }
 }
