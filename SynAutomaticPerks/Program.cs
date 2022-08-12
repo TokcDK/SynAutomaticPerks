@@ -246,7 +246,7 @@ namespace SynAutomaticPerks
             foreach (var npcGetterContext in state.LoadOrder.PriorityOrder.Npc().WinningContextOverrides())
             {
                 if (npcGetterContext == null) continue;
-                if (limit >= 100) continue;
+                //if (limit >= 100) continue;
 
                 if (npcGetterContext == null) continue;
 
