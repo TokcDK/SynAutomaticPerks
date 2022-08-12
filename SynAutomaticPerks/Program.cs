@@ -364,12 +364,14 @@ namespace SynAutomaticPerks
                 var perkGetter = perkGetterContext.Record;
 
                 if (perkGetter == null) continue;
+                if (perkGetter.IsDeleted) continue;
                 //if (perkGetter.EditorID != "ORD_Alt20_AlterationDualCasting_Perk_20_WasAlterationDualCasting") continue;
 
                 //if (IsDebugSpell) Console.WriteLine($"{spellDebugID} check if spel is from included mods");
                 var sourceModKey = state.LinkCache.ResolveAllContexts<IPerk, IPerkGetter>(perkGetter.FormKey).Last().ModKey;
                 if (useModInclude && !Settings.Value.PerkModInclude.Contains(sourceModKey)
                     && !sourceModKey.FileName.String.HasAnyFromList(Settings.Value.ASIS.PerkModInclusions)) continue;
+
 
                 //if (IsDebugSpell) Console.WriteLine($"{spellDebugID} check if spell cast type is valid");
                 //if (!IsValidSpellType(spellGetter)) continue;
