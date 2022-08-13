@@ -156,20 +156,15 @@ namespace SynAutomaticPerks
             int patchedNpcCount = 0; // for tests
             int showProgressInfoCounter = 1000; // for tests
             Console.WriteLine($"Patching npcs...");
-            foreach (var npcGetterContext in state.LoadOrder.PriorityOrder.Npc().WinningContextOverrides())
+            foreach (var npcGetter in state.LoadOrder.PriorityOrder.Npc().WinningOverrides())
             {
-                //if (patchedNpcCount >= 2000) break;
-                if (npcGetterContext == null) continue;
-
                 // skip invalid
-                //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check npc getter");
-                var npcGetter = npcGetterContext.Record;
                 if (npcGetter == null) continue;
                 if (npcGetter.IsDeleted) continue;
                 if (string.IsNullOrWhiteSpace(npcGetter.EditorID)) continue;
                 if (npcGetter.Template != null && !npcGetter.Template.IsNull && npcGetter.Configuration.TemplateFlags.HasFlag( NpcConfiguration.TemplateFlag.SpellList)) continue; // use spells & perks from template
-
-                var sourceModKey = state.LinkCache.ResolveAllContexts<INpc, INpcGetter>(npcGetter.FormKey).Last().ModKey;
+                
+                var sourceModKey = npcGetter.FormKey.ModKey;
                 //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check if npc source mod is in excluded list");
                 if (useNpcModExclude && Settings.Value.NativeSettings.NpcModExclude.Contains(sourceModKey)) continue;
                 //if (IsDebugNPC) Console.WriteLine($"{npcDebugID} check if npc source mod is in included list");
