@@ -1,13 +1,13 @@
 ﻿using Mutagen.Bethesda.Plugins;
 using Mutagen.Bethesda.Plugins.Records;
 using Mutagen.Bethesda.Skyrim;
-using StringCompareSettings;
+using SynAutomaticPerks.Settings;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SynAutomaticPerks
+namespace SynAutomaticPerks.Extensions
 {
-    public static class ListHelpers
+    public static class ListExtensions
     {
         public static bool HasAnyValidValue(this HashSet<StringCompareSettingGroup> list)
         {

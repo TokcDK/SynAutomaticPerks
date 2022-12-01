@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IniReader
+namespace SynAutomaticPerks.Extensions
 {
-    public static class Ini
+    public static class IniExtensions
     {
         public static void ReadIniSectionValuesFrom(this Dictionary<string, HashSet<string>> iniSections, string iniPath)
         {
@@ -43,20 +43,19 @@ namespace IniReader
 
         private static void AddSectionValues(this Dictionary<string, HashSet<string>> iniSections, string sectonName, HashSet<string> sectionValues)
         {
-            if (sectionValues.Count > 0)
+            if (sectionValues.Count == 0) return;
+
+            if (iniSections.ContainsKey(sectonName)) //when for some reason setion is duplicated
             {
-                if (iniSections.ContainsKey(sectonName)) //when for some reason setion is duplicated
+                var section = iniSections[sectonName];
+                foreach (var v in sectionValues)
                 {
-                    var section = iniSections[sectonName];
-                    foreach (var v in sectionValues)
-                    {
-                        if (!section.Contains(v)) section.Add(v);
-                    }
+                    if (!section.Contains(v)) section.Add(v);
                 }
-                else
-                {
-                    iniSections.Add(sectonName, sectionValues);
-                }
+            }
+            else
+            {
+                iniSections.Add(sectonName, sectionValues);
             }
         }
     }

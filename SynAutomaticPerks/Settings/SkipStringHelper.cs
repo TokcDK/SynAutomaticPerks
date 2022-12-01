@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace StringCompareSettings
+namespace SynAutomaticPerks.Settings
 {
     public class StringCompareSetting
     {
@@ -82,7 +82,7 @@ namespace StringCompareSettings
                 {
                     if (group == null) continue;
 
-                    foreach(var setting in group.StringsList)
+                    foreach (var setting in group.StringsList)
                     {
                         if (setting == null) continue;
 
