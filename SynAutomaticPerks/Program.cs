@@ -234,7 +234,7 @@ namespace SynAutomaticPerks
                 {
                     var perkItem = new PerkPlacement
                     {
-                        Perk = perkToAdd.AsLink(),
+                        Perk = perkToAdd.ToLink(),
                         Rank = 1
                     };
                     npc.Perks!.Add(perkItem);
