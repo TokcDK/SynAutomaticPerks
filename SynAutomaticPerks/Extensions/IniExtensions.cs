@@ -43,20 +43,19 @@ namespace SynAutomaticPerks.Extensions
 
         private static void AddSectionValues(this Dictionary<string, HashSet<string>> iniSections, string sectonName, HashSet<string> sectionValues)
         {
-            if (sectionValues.Count > 0)
+            if (sectionValues.Count == 0) return;
+
+            if (iniSections.ContainsKey(sectonName)) //when for some reason setion is duplicated
             {
-                if (iniSections.ContainsKey(sectonName)) //when for some reason setion is duplicated
+                var section = iniSections[sectonName];
+                foreach (var v in sectionValues)
                 {
-                    var section = iniSections[sectonName];
-                    foreach (var v in sectionValues)
-                    {
-                        if (!section.Contains(v)) section.Add(v);
-                    }
+                    if (!section.Contains(v)) section.Add(v);
                 }
-                else
-                {
-                    iniSections.Add(sectonName, sectionValues);
-                }
+            }
+            else
+            {
+                iniSections.Add(sectonName, sectionValues);
             }
         }
     }
