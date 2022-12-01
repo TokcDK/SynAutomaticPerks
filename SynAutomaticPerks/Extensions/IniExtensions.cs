@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SynAutomaticPerks.Extensions
 {
-    public static class Ini
+    public static class IniExtensions
     {
         public static void ReadIniSectionValuesFrom(this Dictionary<string, HashSet<string>> iniSections, string iniPath)
         {

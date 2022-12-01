@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace SynAutomaticPerks.Extensions
 {
-    public static class ListHelpers
+    public static class ListExtensions
     {
         public static bool HasAnyValidValue(this HashSet<StringCompareSettingGroup> list)
         {

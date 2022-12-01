@@ -12,7 +12,7 @@ using ConditionData = SynAutomaticPerks.Program.ConditionData;
 
 namespace SynAutomaticPerks.Extensions
 {
-    public static class SkyrimNPCExtensions
+    public static class NPCExtensions
     {
         public static bool TryUnTemplate(this INpcGetter npcGetter, Mutagen.Bethesda.Plugins.Cache.ILinkCache<ISkyrimMod, ISkyrimModGetter> linkCache, NpcConfiguration.TemplateFlag templateFlag, out INpcGetter npc)
         {
