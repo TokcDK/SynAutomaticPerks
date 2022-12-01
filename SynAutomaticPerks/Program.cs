@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using SynAutomaticPerks.Extensions;
 using SynAutomaticPerks.Utils;
 
 namespace SynAutomaticPerks
