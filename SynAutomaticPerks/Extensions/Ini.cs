@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IniReader
+namespace SynAutomaticPerks.Extensions
 {
     public static class Ini
     {

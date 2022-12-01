@@ -1,16 +1,16 @@
-using IniReader;
 using Mutagen.Bethesda;
 using Mutagen.Bethesda.Plugins;
 using Mutagen.Bethesda.Plugins.Records;
 using Mutagen.Bethesda.Skyrim;
 using Mutagen.Bethesda.Synthesis;
-using SkyrimNPCHelpers;
-using StringCompareSettings;
+using SynAutomaticPerks.Extensions;
+using SynAutomaticPerks.Settings;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using SynAutomaticPerks.Extensions;
 
 namespace SynAutomaticPerks
 {

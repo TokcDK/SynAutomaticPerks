@@ -3,21 +3,20 @@ using Mutagen.Bethesda.Plugins;
 using Mutagen.Bethesda.Skyrim;
 using Mutagen.Bethesda.Synthesis;
 using Noggog;
-using StringCompareSettings;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SkyrimNPCHelpers
+namespace SynAutomaticPerks.Extensions
 {
     public static class SkyrimNPCExtensions
     {
         public static bool TryUnTemplate(this INpcGetter npcGetter, Mutagen.Bethesda.Plugins.Cache.ILinkCache<ISkyrimMod, ISkyrimModGetter> linkCache, NpcConfiguration.TemplateFlag templateFlag, out INpcGetter npc)
         {
             INpcGetter? untemplatedNpc = npcGetter.UnTemplate(linkCache, templateFlag);
-            if (untemplatedNpc == null) 
+            if (untemplatedNpc == null)
             {
                 npc = default!;
                 return false;
@@ -47,7 +46,7 @@ namespace SkyrimNPCHelpers
                 return null;
             }
 
-            return UnTemplate(templateNpcGetter, linkCache, templateFlag);
+            return templateNpcGetter.UnTemplate(linkCache, templateFlag);
         }
     }
 }
