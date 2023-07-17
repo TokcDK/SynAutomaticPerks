@@ -228,22 +228,12 @@ namespace SynAutomaticPerks.Extensions
                 foreach (var perkCondition in perkGetter.Conditions)
                 {
                     if (perkCondition == null) continue;
-                    //Console.WriteLine($"1");
                     if (perkCondition.Data.RunOnType != Condition.RunOnType.Subject) continue;
-                    //Console.WriteLine($"2");
                     if (perkCondition.CompareOperator != CompareOperator.GreaterThanOrEqualTo) continue;
-
-                    //Console.WriteLine($"3");
                     if (perkCondition is not IConditionFloatGetter floatCOnditionGetter) continue;
-                    //Console.WriteLine($"4");
-                    if (floatCOnditionGetter.Data is not IFunctionConditionDataGetter floatCOnditionDataGetter) continue;
+                    if (floatCOnditionGetter.Data is not IGetBaseActorValueConditionDataGetter getBaseActorValueConditionDataGetter) continue;
 
-                    //Console.WriteLine($"5");
-                    if (floatCOnditionDataGetter.Function != Condition.Function.GetBaseActorValue) continue;
-
-                    //Console.WriteLine($"6");
-
-                    var actorValue = (ActorValue)floatCOnditionDataGetter.ParameterOneNumber;
+                    var actorValue = getBaseActorValueConditionDataGetter.ActorValue;
                     if (!validActorValues.Contains(actorValue)) continue;
 
                     //Console.WriteLine($"actorValue:{actorValue}");
